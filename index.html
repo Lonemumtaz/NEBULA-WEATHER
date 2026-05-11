@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Nebula Weather | Glassmorphism Dashboard</title>
+    <!-- Tailwind CSS + Font Awesome + Google Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="default-bg transition-all duration-500">
+    <main class="w-full max-w-md md:max-w-lg lg:max-w-xl">
+        <!-- Main Glass Card -->
+        <div class="glass-card p-6 md:p-8 text-white shadow-2xl">
+            <!-- Header + Branding -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-cloud-sun text-3xl drop-shadow-md"></i>
+                    <h1 class="text-2xl font-bold tracking-tight">Nebula<span class="font-light">Weather</span></h1>
+                </div>
+                <div class="text-xs bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                    <i class="fas fa-map-marker-alt mr-1"></i> Live
+                </div>
+            </div>
+
+            <!-- SEARCH SECTION -->
+            <div class="relative mb-8">
+                <div class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-white/70 text-sm"></i>
+                        <input type="text" id="cityInput" placeholder="Search city... e.g., London, Tokyo, Paris" 
+                               class="input-glass w-full py-3 pl-10 pr-4 rounded-2xl text-white placeholder-white/70 font-medium focus:ring-2 focus:ring-white/40 transition">
+                    </div>
+                    <button id="searchBtn" class="bg-white/30 backdrop-blur-sm hover:bg-white/40 transition-all p-3 rounded-2xl w-12 flex justify-center items-center">
+                        <i class="fas fa-arrow-right text-white text-xl"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-white/70 mt-2 ml-1"><i class="far fa-keyboard"></i> Press "Enter" to search</p>
+            </div>
+
+            <!-- DYNAMIC CONTENT: LOADING, ERROR, WEATHER INFO -->
+            <div id="weatherContent" class="transition-all duration-300">
+                <!-- initial state (search prompt) -->
+                <div id="initialState" class="flex flex-col items-center justify-center py-8 text-center space-y-3">
+                    <div class="bg-white/20 p-5 rounded-full backdrop-blur-sm">
+                        <i class="fas fa-rainbow text-5xl text-white/90"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">Discover the weather</h3>
+                    <p class="text-white/80 text-sm max-w-xs">Enter any city to get real-time conditions, high/low, humidity & wind.</p>
+                </div>
+
+                <!-- loading spinner (hidden by default) -->
+                <div id="loadingState" class="hidden flex flex-col items-center justify-center py-12 space-y-4">
+                    <div class="spinner"></div>
+                    <p class="text-white/90 font-medium tracking-wide"><i class="fas fa-sync-alt fa-fw mr-1"></i> Fetching forecast...</p>
+                </div>
+
+                <!-- error state (hidden by default) -->
+                <div id="errorState" class="hidden flex flex-col items-center justify-center py-10 text-center space-y-3">
+                    <i class="fas fa-exclamation-triangle text-5xl text-yellow-200"></i>
+                    <p id="errorMessage" class="text-lg font-medium">City not found</p>
+                    <p class="text-white/70 text-sm">Check spelling or try another city 🌍</p>
+                </div>
+
+                <!-- success weather display (hidden until data loads) -->
+                <div id="weatherDisplay" class="hidden space-y-6">
+                    <!-- City & country + toggle row -->
+                    <div class="flex flex-wrap justify-between items-center gap-2">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <h2 id="cityName" class="text-3xl md:text-4xl font-bold tracking-tight">London</h2>
+                            <span id="countryCode" class="bg-white/30 text-sm px-2 py-0.5 rounded-full font-mono">UK</span>
+                        </div>
+                        <!-- Unit toggle (Celsius / Fahrenheit) -->
+                        <div class="flex items-center gap-3 bg-white/15 p-1.5 pl-3 rounded-full backdrop-blur-sm">
+                            <span class="unit-text text-sm" id="celsiusLabel">°C</span>
+                            <div id="unitToggle" class="toggle-switch">
+                                <div class="toggle-knob"></div>
+                            </div>
+                            <span class="unit-text text-sm" id="fahrenheitLabel">°F</span>
+                        </div>
+                    </div>
+
+                    <!-- main weather row: temp + icon + description -->
+                    <div class="flex flex-row items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-3">
+                            <span id="mainTemp" class="temp-main text-6xl md:text-7xl font-extrabold tracking-tighter">18°C</span>
+                            <div class="flex flex-col">
+                                <img id="weatherIcon" src="https://openweathermap.org/img/wn/10d@2x.png" alt="weather icon" class="w-16 h-16 drop-shadow-md">
+                                <span id="weatherDesc" class="capitalize text-base font-medium">Clear Sky</span>
+                            </div>
+                        </div>
+                        <div class="bg-white/10 rounded-2xl px-4 py-2 text-center backdrop-blur-sm">
+                            <p class="text-xs uppercase tracking-wide opacity-80">Feels like</p>
+                            <p id="feelsLike" class="text-xl font-semibold">18°C</p>
+                        </div>
+                    </div>
+
+                    <!-- High/Low, Humidity, Wind card (grid) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex flex-col items-center">
+                            <i class="fas fa-thermometer-half text-white/80 text-lg"></i>
+                            <p class="text-xs uppercase mt-1 opacity-80">High / Low</p>
+                            <p id="highLow" class="text-lg font-bold">24° / 15°C</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex flex-col items-center">
+                            <i class="fas fa-tint text-white/80 text-lg"></i>
+                            <p class="text-xs uppercase mt-1 opacity-80">Humidity</p>
+                            <p id="humidity" class="text-lg font-bold">68%</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex flex-col items-center">
+                            <i class="fas fa-wind text-white/80 text-lg"></i>
+                            <p class="text-xs uppercase mt-1 opacity-80">Wind Speed</p>
+                            <p id="windSpeed" class="text-lg font-bold">4.2 m/s</p>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 flex flex-col items-center">
+                            <i class="fas fa-compress-alt text-white/80 text-lg"></i>
+                            <p class="text-xs uppercase mt-1 opacity-80">Pressure</p>
+                            <p id="pressure" class="text-lg font-bold">1012 hPa</p>
+                        </div>
+                    </div>
+                    <p class="text-center text-white/60 text-xs pt-2"><i class="far fa-clock"></i> Live data via OpenWeatherMap</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
