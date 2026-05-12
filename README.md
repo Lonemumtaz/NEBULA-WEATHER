@@ -29,12 +29,7 @@ Open `index.html` in your browser to try the app locally.
 - `script.js` — Handles API calls, UI updates, and logic
 - `styles.css` — Custom styles (uses Tailwind CSS for core styling)
 
-## Screenshots
-> _Add screenshots here if desired_
 
-## Credits
-- UI inspired by modern glassmorphism design
-- Weather data from [OpenWeatherMap](https://openweathermap.org/)
 
 ---
 **Nebula Weather** — Simple, beautiful, and effective weather at your fingertips!
